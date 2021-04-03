@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { EventosComponent } from './eventos/eventos.component';
 
 @NgModule({
-  declarations: [	
+  declarations: [
     AppComponent,
       EventosComponent
    ],
