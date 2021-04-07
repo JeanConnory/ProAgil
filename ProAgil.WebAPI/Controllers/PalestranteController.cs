@@ -1,18 +1,18 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ProAgil.Domain;
 using ProAgil.Repository;
 
-namespace ProAgil.API.Controllers
+namespace ProAgil.WebAPI.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
-    public class EventoController : ControllerBase
+    public class PalestranteController : ControllerBase
     {
-        public readonly IProAgilRepository _repo;
-        public EventoController(IProAgilRepository repo)
+        private readonly IProAgilRepository _repo;
+        public PalestranteController(IProAgilRepository repo)
         {
             _repo = repo;
         }
@@ -22,97 +22,96 @@ namespace ProAgil.API.Controllers
         {
             try
             {
-                var results = await _repo.GetAllEventoAsync(true);
+                var results = await _repo.GetAllPalestranteAsync(true);
                 return Ok(results);
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }            
+            }
         }
 
-        [HttpGet("{EventoId}")]
-        public async Task<IActionResult> Get(int EventoId)
+        [HttpGet("{PalestranteId}")]
+        public async Task<IActionResult> Get(int PalestranteId)
         {
             try
             {
-                var results = await _repo.GetAllEventoAsyncById(EventoId, true);
+                var results = await _repo.GetAllPalestranteAsyncById(PalestranteId, true);
                 return Ok(results);
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }            
+            }
         }
 
-        [HttpGet("getByTema/{tema}")]
-        public async Task<IActionResult> Get(string tema)
+        [HttpGet("getByNome/{nome}")]
+        public async Task<IActionResult> Get(string nome)
         {
             try
             {
-                var results = await _repo.GetAllEventoAsyncByTema(tema, true);
-                return Ok(results);
+                var results = await _repo.GetAllPalestranteAsyncByName(nome, true);
+                return Ok(results);                
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }            
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Evento model)
+        public async Task<IActionResult> Post(Palestrante model)
         {
             try
             {
                 _repo.Add(model);
                 if(await _repo.SaveChangesAsync())
                 {
-                    return Created($"/api/evento/{model.Id}", model);
+                    return Created($"/api/palestrante/{model.Id}", model);
                 }
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }      
+            }
 
             return BadRequest();
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put(int EventoId, Evento model)
+        public async Task<IActionResult> Put(int PalestranteId, Palestrante model)
         {
             try
             {
-                var evento = await _repo.GetAllEventoAsyncById(EventoId, false);
-                if(evento == null)
+                var palestrante = _repo.GetAllPalestranteAsyncById(PalestranteId, false);
+                if(palestrante == null)
                     return NotFound();
-
+                
                 _repo.Update(model);
 
                 if(await _repo.SaveChangesAsync())
                 {
-                    return Created($"/api/evento/{model.Id}", model);
+                    return Created($"/api/palestrante/{model.Id}", model);
                 }
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }      
+            }
 
             return BadRequest();
         }
 
-
         [HttpDelete]
-        public async Task<IActionResult> Delete(int EventoId)
+        public async Task<IActionResult> Delete(int PalestranteId)
         {
             try
             {
-                var evento = await _repo.GetAllEventoAsyncById(EventoId, false);
-                if(evento == null)
+                var palestrante = _repo.GetAllPalestranteAsyncById(PalestranteId, false);
+                if(palestrante == null)
                     return NotFound();
-
-                _repo.Delete(evento);
+                
+                _repo.Delete(palestrante);
 
                 if(await _repo.SaveChangesAsync())
                 {
@@ -120,11 +119,12 @@ namespace ProAgil.API.Controllers
                 }
             }
             catch (System.Exception)
-            {                
+            {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
-            }      
+            }
 
             return BadRequest();
         }
+
     }
 }
