@@ -1,9 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ProAgil.Domain;
 using ProAgil.Repository;
+using ProAgil.WebAPI.Dtos;
 
 namespace ProAgil.API.Controllers
 {
@@ -12,9 +14,11 @@ namespace ProAgil.API.Controllers
     public class EventoController : ControllerBase
     {
         public readonly IProAgilRepository _repo;
-        public EventoController(IProAgilRepository repo)
+        public readonly IMapper _mapper;
+        public EventoController(IProAgilRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -22,12 +26,15 @@ namespace ProAgil.API.Controllers
         {
             try
             {
-                var results = await _repo.GetAllEventoAsync(true);
+                var eventos = await _repo.GetAllEventoAsync(true);
+
+                var results = _mapper.Map<EventoDto[]>(eventos);
+
                 return Ok(results);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"BD falhou: {ex}");
             }            
         }
 
@@ -36,12 +43,15 @@ namespace ProAgil.API.Controllers
         {
             try
             {
-                var results = await _repo.GetAllEventoAsyncById(EventoId, true);
+                var evento = await _repo.GetAllEventoAsyncById(EventoId, true);
+
+                var results = _mapper.Map<EventoDto>(evento);
+
                 return Ok(results);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"BD falhou: {ex}");
             }            
         }
 
@@ -50,36 +60,42 @@ namespace ProAgil.API.Controllers
         {
             try
             {
-                var results = await _repo.GetAllEventoAsyncByTema(tema, true);
+                var eventos = await _repo.GetAllEventoAsyncByTema(tema, true);
+
+                var results = _mapper.Map<EventoDto[]>(eventos);
+
                 return Ok(results);
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"BD falhou: {ex}");
             }            
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(Evento model)
+        public async Task<IActionResult> Post(EventoDto model)
         {
             try
             {
-                _repo.Add(model);
+                var evento = _mapper.Map<Evento>(model);
+
+                _repo.Add(evento);
+                
                 if(await _repo.SaveChangesAsync())
                 {
-                    return Created($"/api/evento/{model.Id}", model);
+                    return Created($"/api/evento/{model.Id}", _mapper.Map<Evento>(model));
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"BD falhou: {ex}");
             }      
 
             return BadRequest();
         }
 
         [HttpPut("{EventoId}")]
-        public async Task<IActionResult> Put(int EventoId, Evento model)
+        public async Task<IActionResult> Put(int EventoId, EventoDto model)
         {
             try
             {
@@ -87,16 +103,18 @@ namespace ProAgil.API.Controllers
                 if(evento == null)
                     return NotFound();
 
-                _repo.Update(model);
+                _mapper.Map(model, evento);
+
+                _repo.Update(evento);
 
                 if(await _repo.SaveChangesAsync())
                 {
-                    return Created($"/api/evento/{model.Id}", model);
+                    return Created($"/api/evento/{model.Id}", _mapper.Map<EventoDto>(evento));
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {                
-                return this.StatusCode(StatusCodes.Status500InternalServerError, "BD falhou!");
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"BD falhou: {ex}");
             }      
 
             return BadRequest();
