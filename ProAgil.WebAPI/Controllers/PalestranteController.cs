@@ -8,7 +8,7 @@ namespace ProAgil.WebAPI.Controllers
 {
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PalestranteController : ControllerBase
     {
         private readonly IProAgilRepository _repo;
