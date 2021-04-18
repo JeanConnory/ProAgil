@@ -10,7 +10,7 @@ import { AuthService } from 'src/app/_services/auth.service';
 })
 export class LoginComponent implements OnInit {
 
-  titulo: 'Login';
+  titulo: "Login";
   model: any = {};
 
   constructor(public router: Router, private authService: AuthService, private toastr: ToastrService) { }
