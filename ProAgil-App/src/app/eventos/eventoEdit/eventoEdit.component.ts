@@ -46,27 +46,28 @@ export class EventoEditComponent implements OnInit {
   carregarEvento() {
     const idEvento = +this.router.snapshot.paramMap.get('id');
     this.eventoService.getEventoById(idEvento)
-    .subscribe(
-      (evento: Evento) => {
-        this.evento = Object.assign({}, evento);
-        this.fileNameToUpdate = evento.imagemURL.toString();
-        this.imagemURL = `http://localhost:5000/resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
-        this.evento.imagemURL = '';
-        this.registerForm.patchValue(this.evento);
-        
-        this.evento.lotes.forEach(lote => {
-          this.lotes.push(this.criaLote(lote));
-        });
+      .subscribe(
+        (evento: Evento) => {
+          this.evento = Object.assign({}, evento);
+          this.fileNameToUpdate = evento.imagemURL.toString();
+          this.imagemURL = `http://localhost:5000/resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
+          this.evento.imagemURL = '';
+          this.registerForm.patchValue(this.evento);
 
-        this.evento.redesSociais.forEach(redeSocial => {
-          this.redesSociais.push(this.criaRedeSocial(redeSocial));
-        });
-      }
-    )
+          this.evento.lotes.forEach(lote => {
+            this.lotes.push(this.criaLote(lote));
+          });
+
+          this.evento.redesSociais.forEach(redeSocial => {
+            this.redesSociais.push(this.criaRedeSocial(redeSocial));
+          });
+        }
+      )
   }
 
   validation() {
     this.registerForm = this.fb.group({
+      id: [],
       tema: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(50)]],
       local: ['', Validators.required],
       dataEvento: ['', Validators.required],
@@ -117,7 +118,33 @@ export class EventoEditComponent implements OnInit {
   onFileChange(file: FileList) {
     const reader = new FileReader();
     reader.onload = (event: any) => this.imagemURL = event.target.result;
+    this.file = event.target.files;
     reader.readAsDataURL(file[0]);
+  }
+
+  salvarEvento() {
+    this.evento = Object.assign({ id: this.evento.id }, this.registerForm.value);
+    this.evento.imagemURL = this.fileNameToUpdate;
+    this.uploadImagem();
+    this.eventoService.putEvento(this.evento).subscribe(
+      (novoEvento: Evento) => {
+        this.toastr.success('Editado com sucesso!');
+      }, error => {
+        this.toastr.error(`Erro ao editar: ${error}`);
+      }
+    );
+  }
+
+  uploadImagem() {
+    if (this.registerForm.get('imagemURL').value != '') {
+      this.eventoService.postUpload(this.file, this.fileNameToUpdate)
+        .subscribe(
+          () => {
+            this.dataAtual = new Date().getMilliseconds().toString();
+            this.imagemURL = `http://localhost:5000/resources/images/${this.evento.imagemURL}?_ts=${this.dataAtual}`;
+          }
+        );
+    }
   }
 
 }

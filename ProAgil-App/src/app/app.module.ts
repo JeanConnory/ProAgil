@@ -12,6 +12,7 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgxMaskModule } from 'ngx-mask';
 import { ToastrModule } from 'ngx-toastr';
+import { NgxCurrencyModule } from 'ngx-currency';
 
 import { EventoService } from './_services/evento.service';
 
@@ -53,6 +54,7 @@ import { EventoEditComponent } from './eventos/eventoEdit/eventoEdit.component';
     ModalModule.forRoot(),
     TabsModule.forRoot(),
     NgxMaskModule.forRoot(),
+    NgxCurrencyModule,
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
     AppRoutingModule,

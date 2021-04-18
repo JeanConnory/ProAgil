@@ -38,7 +38,7 @@ namespace ProAgil.WebAPI.Controllers
         }
 
         [HttpGet("GetUser")]
-        public async Task<IActionResult> GetUser()
+        public IActionResult GetUser()
         {
             return Ok(new UserDto());
         }
